@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta title="bt demo" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <!-- Load PayPal's checkout.js Library. -->
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&disable-funding=card&commit=false&vault=true"></script>
+
+  <body>
+    <div class="container">
+      <h2 class="mt-3">PayPal JavaScript SDK with REST BA</h2>
+      <h4>Product Page</h4>
+      <p>The billing agreement will be created with PayPal experience</p>
+      <div class="row mt-3">
+        <div id="paypal-button" class="col-md-4"></div>
+        <div class = "col-md-6" id ="paypalResponse"></div>
+        
+      </div>
+    </div>
+
+    <script>
+        paypal.Buttons({
+            createBillingAgreement: (data, actions) => {
+              //create billing token api
+                return fetch('ba_token', {
+                    method: "POST",
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    return data.billingToken
+                })
+            },
+            onApprove: (data, actions) => {
+              //create billing agreement api
+                return fetch('ba_id', {
+                    method: "POST",
+                    body: JSON.stringify({ billingToken: data.billingToken}),
+                    headers: {
+                        "Content-Type": "application/json"
+                      }
+                }).then(res => res.json())
+                .then(response => {
+                    localStorage.setItem('billingAgreementId', response.billingAgreement.id);
+                    actions.redirect('http://localhost:5000/paypalBAOrders')
+                })
+            }
+        }).render('#paypal-button');
+    </script>
+
+    
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
